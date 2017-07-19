@@ -5,8 +5,34 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp3"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Client ft. Ishay" ResizeMode="NoResize" Height="550" Width="750">
     <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="IMG-20170713-WA0006.jpg"/>
+        </Grid.Background>
+        <!--<Button>
+            <StackPanel>
+                <Image s
+            </StackPanel>
+        </Button>-->
+        <Button x:Name="btnCONNECT" Visibility="Hidden" Content="Connect" HorizontalAlignment="Left" Height="51" Margin="204,37,0,0" VerticalAlignment="Top" Width="91" Click="btnCONNECT_Click" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
+        <DataGrid x:Name="gv" Visibility="Hidden"  HorizontalAlignment="Left" Height="369" Margin="43,117,0,0" VerticalAlignment="Top" Width="1142" LoadingRow="gv_LoadingRow" Loaded="gv_Loaded" UnloadingRow="gv_UnloadingRow"/>
+        <Button Visibility="Hidden" Content="Start Server" HorizontalAlignment="Left" Height="51" Margin="301,209,0,0" VerticalAlignment="Top" Width="128" Click="Button_Click"/>
+        <Button Click="Button_Click" Margin="340,109,-0.4,182.2">
+            <Image Source="Bamba.ico" Margin="-65,-85,65,85"/>
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <ContentPresenter Content="{TemplateBinding Content}"/>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
         
+        <Label x:Name="lblIPAddress" HorizontalAlignment="Left" Height="96" Margin="204,307,0,0" VerticalAlignment="Top" Width="369" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontWeight="Bold" FontFamily="Harry P" FontSize="48" Foreground="#FFCCFF00"/>
+        <Label Content="Credit to Xor for many help and code" HorizontalAlignment="Left" Height="65" Margin="103,23,0,0" VerticalAlignment="Top" Width="214"/>
+        <Button x:Name="Button3" Content="Button" HorizontalAlignment="Left" Height="30" Margin="103,152,0,0" VerticalAlignment="Top" Width="72" Click="Button3_Click"/>
+        <Button x:Name="Button1" Content="Start" HorizontalAlignment="Left" Height="30" Margin="51,109,0,0" VerticalAlignment="Top" Width="72" Click="Button1_Click"/>
+        <Button x:Name="Button2" Content="Generate Conn String" HorizontalAlignment="Left" Height="30" Margin="149,109,0,0" VerticalAlignment="Top" Width="137" Click="Button2_Click"/>
+        <TextBox x:Name="TextBox1" HorizontalAlignment="Left" Height="37" Margin="245,172,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="72"/>
+
     </Grid>
 </Window>
