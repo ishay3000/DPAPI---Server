@@ -26,8 +26,8 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        
-        <Label x:Name="lblIPAddress" HorizontalAlignment="Left" Height="96" Margin="204,307,0,0" VerticalAlignment="Top" Width="369" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontWeight="Bold" FontFamily="Harry P" FontSize="48" Foreground="#FFCCFF00"/>
+
+        <Label x:Name="lblIPAddress" HorizontalAlignment="Left" Height="165" Margin="43,265,0,0" VerticalAlignment="Top" Width="487" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontWeight="Bold" FontFamily="Harry P" FontSize="48" Foreground="#FFCCFF00"/>
         <Label Content="Credit to Xor for many help and code" HorizontalAlignment="Left" Height="65" Margin="103,23,0,0" VerticalAlignment="Top" Width="214"/>
         <Button x:Name="Button3" Content="Button" HorizontalAlignment="Left" Height="30" Margin="103,152,0,0" VerticalAlignment="Top" Width="72" Click="Button3_Click"/>
         <Button x:Name="Button1" Content="Start" HorizontalAlignment="Left" Height="30" Margin="51,109,0,0" VerticalAlignment="Top" Width="72" Click="Button1_Click"/>

